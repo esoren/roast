@@ -1,6 +1,11 @@
 /* LIST OF EACH NEXTION TRIGGER CALLBACK */
 
 extern int MODE; 
+
+
+#define SETPOINT_PWR 0
+#define SETPOINT_PID 1
+
 //trigger0  - request from nextion for mcu to update temp and fan values
 //trigger1  - fanSlider Touch Move
 //trigger2  - fanBtn OFF
@@ -19,14 +24,25 @@ void update_mode(int event);
 //Triggered by mcuUpdateTimer every 500ms
 //printh 23 02 54 00
 void trigger0() {
-  myNex.writeNum("chamberTemp", chamberTemp); //todo: set this to chamberTemp once sensor is installed 
-  myNex.writeNum("setpoint", setpoint);
+  myNex.writeNum("chamberTemp", chamberTemp); 
+  myNex.writeNum("ambientTemp", ambientTemp);
+  myNex.writeNum("onboardTemp", onboardTemp);
+  
 
-  if(pidMode==0) { 
-    myNex.writeNum("setpointDisplay", (int)setpoint*2.5);  //in PWR mode, scale the setpoint for full scale in waveform
-  } else {
-    myNex.writeNum("setpointDisplay", setpoint);
+
+  if(heatMode==HEATMODE_PID) {
+    myNex.writeNum("pwrDisplay", (int)float(pidPwrOutput)*2.5);
+    myNex.writeStr("pwrText.txt", String(pidPwrOutput, 0));  
+    myNex.writeNum("pidDisplay", pidSetpoint); 
+  } else if (heatMode==HEATMODE_PWR) {
+    myNex.writeNum("pwrDisplay", (int)float(pwrSetpoint)*2.5);   
+    myNex.writeNum("pidDisplay", (int)float(pwrSetpoint)*2.5); //hide PID curve under power curve
+    myNex.writeStr("pidText.txt", "n/a");
   }
+  
+
+  
+  
   myNex.writeNum("fanspeed", fanspeed); 
   return;
 }
@@ -38,34 +54,34 @@ void trigger1() {
 
   double newFanspeed = myNex.readNumber("fanSlider.val");
   if(newFanspeed != 777777) {
-    fanspeed = newFanspeed;
+    if(newFanspeed <= 100 && newFanspeed >= 0) {
+      fanspeed = newFanspeed;
+    }
   }
   myNex.writeStr("fanText.txt", String(fanspeed));
   set_fan_speed(fanspeed);
-  return;
-}
 
-// heatSpeed slider has been updated, ask Nextion for the new value 
-//Triggered by heatSlider Touch Move event 
-//printh 23 02 54 0A
-void trigger10() {
 
-  double newSetpoint = myNex.readNumber("heatSlider.val");
-  if(newSetpoint != 777777) {
-    setpoint = newSetpoint;
+  double newHeatSliderValue = myNex.readNumber("heatSlider.val");
+  if(newHeatSliderValue != 777777) {
+    
+    if(heatMode==HEATMODE_PWR) {
+      pwrSetpoint = newHeatSliderValue;
+      myNex.writeStr("pwrText.txt", String(pwrSetpoint, 0));
+
+    } else if (heatMode==HEATMODE_PID) {
+      pidSetpoint = newHeatSliderValue;
+      myNex.writeStr("pidText.txt", String(pidSetpoint, 0));
+    }
   }
-  
-  
-  myNex.writeStr("setText.txt", String(setpoint, 0));
-  
-  
+      
   if(MODE==4) {
-    set_heater_output_manual(setpoint);
+    set_heater_output_manual(pwrSetpoint);
   }
-
-  
-  return;
+   return; 
 }
+
+
 
 
 
@@ -178,44 +194,32 @@ void set_button_state(int button, int state) {
   return;
 }
 
-#define SETPOINT_PWR 0
-#define SETPOINT_PID 1
-void set_setpoint_mode(int setpoint_mode) {
-  if(setpoint_mode == SETPOINT_PWR) {
+
+void set_setpoint_mode(int new_setpoint_mode) {
+  if(new_setpoint_mode == SETPOINT_PWR) {
     myNex.writeNum("heatSlider.minval", 0);
     myNex.writeNum("heatSlider.maxval", 100);
     myNex.writeNum("heatSlider.pco", 65519);
-    myNex.writeStr("setLabel.txt", "Pwr");
-    myNex.writeNum("setLabel.pco", 65519);
-    myNex.writeNum("setText.pco", 65519);
-    myNex.writeNum("tempDisplay.pco1", 65519);
-
-    if(pidMode==1) { //if switching from PID to PWR
-      pidMode=0;
-      pidSetpointCache = setpoint;
-      setpoint = pwrSetpointCache; 
-    }
+    myNex.writeNum("heatSlider.val", pwrSetpoint);
+    myNex.writeStr("pwrText.txt", String(pwrSetpoint,0));
+    myNex.writeStr("pidText.txt", "n/a");
+    
+    heatMode=HEATMODE_PWR;
+    
       
-  } else if (setpoint_mode == SETPOINT_PID) {
+  } else if (new_setpoint_mode == SETPOINT_PID) {
     myNex.writeNum("heatSlider.minval", 1);
     myNex.writeNum("heatSlider.maxval", 250);
-    myNex.writeStr("setLabel.txt", "Set");
-    myNex.writeNum("heatSlider.pco", PIDBTN_ON_COLOR);
-    myNex.writeNum("setLabel.pco", PIDBTN_ON_COLOR);
-    myNex.writeNum("setText.pco", PIDBTN_ON_COLOR);
-    myNex.writeNum("tempDisplay.pco1", PIDBTN_ON_COLOR);
+    myNex.writeNum("heatSlider.pco", 34800);
+    myNex.writeNum("heatSlider.val", pidSetpoint);
+    myNex.writeStr("pidText.txt", String(pidSetpoint,0));
 
-    if(pidMode==0) { //if switching from PWR to PID
-      pidMode=1;
-      pwrSetpointCache = setpoint;
-      setpoint = pidSetpointCache; 
-    }  
-
+    
+    heatMode=HEATMODE_PID; 
+    
+    
   }
-
-
-  myNex.writeNum("heatSlider.val", setpoint);
-  myNex.writeStr("setText.txt", String(setpoint,0));
+  
   return;
 }
 

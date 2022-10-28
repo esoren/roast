@@ -85,7 +85,7 @@ void enter_mode(int newmode) {
           myPID.SetMode(MANUAL);
           set_setpoint_mode(SETPOINT_PWR);
           enable_fan();
-          set_heater_output_manual(setpoint);
+          set_heater_output_manual(pwrSetpoint);
           
           set_button_enable(  FANBTN,   1);
           set_button_enable(  HEATBTN,  1);

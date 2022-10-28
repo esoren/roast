@@ -4,6 +4,11 @@
 #include <Adafruit_I2CRegister.h>
 #include "Adafruit_MCP9600.h"
 
+
+
+#define HEATMODE_PWR 0
+#define HEATMODE_PID 1
+
 /* ****************************** FUNCTION PROTOTYPES *****************************  */
 
 void setup_fan();
@@ -30,13 +35,11 @@ double read_ambient_temp();
 
 /* ********************************  PIN DEFINITIONS  ********************************* */
 
-//inputs to the fan motor controller used for PWM signal
-int fan_in1_pin = 9;
+//todo: can these be #defines to save memory?
+int fan_in1_pin = 9; //used for fan PWM control
 int fan_in2_pin = 10;
 int fan_enable_pin = 2;
-
 int heat_enable_pin = 4; 
-
 int onboard_thermistor_pin = A0;
 int thermocouple_pwr_pin = 7;
 
@@ -52,8 +55,14 @@ double heatOnTime = 0; //when PID is enabled this value is written by reference
                        //when PID is disabled this value can be written manually
                        //This should be between 0 and pidWindowSize  
                        //If this is set to pidWindowSize the heater will always be on 
+
+double   pidPwrOutput = 0; //percent of power enabled when PID is running.
+                        //This is used to update the display
+                        //= heatOnTime/pidWindowSize*100
+                        // this is updated in the PID routine 
                        
-double setpoint = 50;    //Target for PID OR percent duty cycle of heater, depending on mode 
+double pwrSetpoint = 0;    //power level in PWR mode 0-100%
+double pidSetpoint = 50;   //pid setpoint 1-250C
 
 double onboardTemp = 25; //temperature of the onboard thermistor. This is updated inside of the PID timer interrupt routine
 double chamberTemp = 25; //temperature measured by a type-K thermocouple inside of the heating chamber. 
@@ -64,11 +73,10 @@ unsigned long windowStartTime; //this is updated as part of the PID processing t
 double Kp=2;
 double Ki=5;
 double Kd=2;
-PID myPID(&chamberTemp, &heatOnTime, &setpoint, Kp, Ki, Kd, DIRECT);
+PID myPID(&chamberTemp, &heatOnTime, &pidSetpoint, Kp, Ki, Kd, DIRECT);
 
-int pidMode = 0; //0 = PID disabled, 1 = PID enabled
-int pidSetpointCache = 50; //used to store the previous PID setpoint value when switching to PWR mode
-int pwrSetpointCache = 0; //used to store the previous PWR setpoint value when switching to PWR mode
+
+int heatMode = HEATMODE_PWR; //0 = PID disabled (PWR mode), 1 = PID enabled (PID mode)
 
 /* ************************************  CONFIG  ************************************* */
 
@@ -172,7 +180,7 @@ void set_heater_output_manual(float heater_percent) {
 
 void initialize_pid(double init_setpoint) {
    windowStartTime = millis();
-   setpoint = init_setpoint; 
+   pidSetpoint = init_setpoint; 
    myPID.SetOutputLimits(0, pidWindowSize);
    myPID.SetMode(MANUAL);
    set_heater_output_manual(0);
@@ -194,9 +202,7 @@ ISR(TIMER2_COMPB_vect){
 
       //Measure temperatures 
       onboardTemp=read_onboard_temp(); //todo: average this reading (inside of temp routine or here?)
-      chamberTemp=read_thermocouple_temp();
-      ambientTemp=read_ambient_temp();
-      
+            
       //Process PID loop every 20 interrupt calls, manage duty cycle of heater 
       isr_count = (isr_count + 1) % 20; 
       
@@ -213,6 +219,8 @@ ISR(TIMER2_COMPB_vect){
         } else {
           digitalWrite(heat_enable_pin, 0);
         }
+
+        pidPwrOutput = int(float(heatOnTime)/float(pidWindowSize)*100);
 
       }
       return;
@@ -252,14 +260,11 @@ Adafruit_MCP9600 mcp;
 
 
 void setup_thermocouple() {
-
-    
    mcp.begin(MCP_I2C_ADDRESS);
    mcp.setADCresolution(MCP9600_ADCRESOLUTION_18);
    mcp.setThermocoupleType(MCP9600_TYPE_K);
    mcp.enable(true);
-      
-
+   double tempval = mcp.readThermocouple();
    return;
 }
 
