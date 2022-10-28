@@ -10,6 +10,9 @@ EasyNex myNex(Serial);
 
 
 void setup() {
+
+  
+
   myNex.begin(115200); //setup serial connection to Nextion Display. todo: can this be 115200?
 
   setup_fan(); //setup fan pins, leave fan off 
@@ -30,7 +33,11 @@ void setup() {
   set_pid_timer_enable(1);
   disable_heater(); //heater should be off by default, but confirm here
 
+
+  setup_thermocouple();
+  
   enter_mode(0);
+
   
 }
 

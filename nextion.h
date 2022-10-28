@@ -19,7 +19,7 @@ void update_mode(int event);
 //Triggered by mcuUpdateTimer every 500ms
 //printh 23 02 54 00
 void trigger0() {
-  myNex.writeNum("chamberTemp", onboardTemp); //todo: set this to chamberTemp once sensor is installed 
+  myNex.writeNum("chamberTemp", chamberTemp); //todo: set this to chamberTemp once sensor is installed 
   myNex.writeNum("setpoint", setpoint);
 
   if(pidMode==0) { 

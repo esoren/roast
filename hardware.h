@@ -1,4 +1,8 @@
 
+#include <Wire.h>
+#include <Adafruit_I2CDevice.h>
+#include <Adafruit_I2CRegister.h>
+#include "Adafruit_MCP9600.h"
 
 /* ****************************** FUNCTION PROTOTYPES *****************************  */
 
@@ -20,6 +24,10 @@ void disable_heater();
 int read_onboard_temp();
 void set_button_enable(int button, int enable);
 
+void setup_thermocouple();
+double read_thermocouple_temp();
+double read_ambient_temp();
+
 /* ********************************  PIN DEFINITIONS  ********************************* */
 
 //inputs to the fan motor controller used for PWM signal
@@ -30,6 +38,8 @@ int fan_enable_pin = 2;
 int heat_enable_pin = 4; 
 
 int onboard_thermistor_pin = A0;
+int thermocouple_pwr_pin = 7;
+
 
 /* ******************************** GLOBALS ***************************************** */
 
@@ -46,13 +56,15 @@ double heatOnTime = 0; //when PID is enabled this value is written by reference
 double setpoint = 50;    //Target for PID OR percent duty cycle of heater, depending on mode 
 
 double onboardTemp = 25; //temperature of the onboard thermistor. This is updated inside of the PID timer interrupt routine
+double chamberTemp = 25; //temperature measured by a type-K thermocouple inside of the heating chamber. 
+double ambientTemp = 25; //temperature measured at the cold junction of the MCP9600
 
 unsigned long windowStartTime; //this is updated as part of the PID processing to handle heat PWM duty cycle 
 
 double Kp=2;
 double Ki=5;
 double Kd=2;
-PID myPID(&onboardTemp, &heatOnTime, &setpoint, Kp, Ki, Kd, DIRECT);
+PID myPID(&chamberTemp, &heatOnTime, &setpoint, Kp, Ki, Kd, DIRECT);
 
 int pidMode = 0; //0 = PID disabled, 1 = PID enabled
 int pidSetpointCache = 50; //used to store the previous PID setpoint value when switching to PWR mode
@@ -175,15 +187,17 @@ void disable_heater() {
   return;
 }
 
+
 ISR(TIMER2_COMPB_vect){                               
       //This interrupt routine is configured by setup_pid_timer()
       static int isr_count = 0;
 
-      //READ ONBOARD TEMPERATURE
+      //Measure temperatures 
       onboardTemp=read_onboard_temp(); //todo: average this reading (inside of temp routine or here?)
+      chamberTemp=read_thermocouple_temp();
+      ambientTemp=read_ambient_temp();
       
-
-      //PROCESS PID LOOP EVERY 20 INTERRUPT CALLS, MANAGE DUTY CYCLE OF HEATER 
+      //Process PID loop every 20 interrupt calls, manage duty cycle of heater 
       isr_count = (isr_count + 1) % 20; 
       
       if(isr_count == 0) {
@@ -210,6 +224,7 @@ ISR(TIMER2_COMPB_vect){
 
 /* **********************************  TEMP READBACK  *********************************** */
 
+//read the onboard temp from the thermistor mounted under the heater element 
 int read_onboard_temp() {
   
   int Vo;
@@ -225,4 +240,35 @@ int read_onboard_temp() {
   T = T - 273.15;
 
   return T; 
+}
+
+
+/* *********************************** THERMOCOUPLE  ********************************* */
+
+#define MCP_I2C_ADDRESS (0x67)
+
+Adafruit_MCP9600 mcp;
+
+
+
+void setup_thermocouple() {
+
+    
+   mcp.begin(MCP_I2C_ADDRESS);
+   mcp.setADCresolution(MCP9600_ADCRESOLUTION_18);
+   mcp.setThermocoupleType(MCP9600_TYPE_K);
+   mcp.enable(true);
+      
+
+   return;
+}
+
+double read_thermocouple_temp() {
+  double tempval = mcp.readThermocouple();
+  return tempval;
+}
+
+double read_ambient_temp() {
+  double tempval = mcp.readAmbient();
+  return tempval;
 }
