@@ -52,6 +52,7 @@ void trigger0() {
 //printh 23 02 54 01
 void trigger1() {
 
+  
   double newFanspeed = myNex.readNumber("fanSlider.val");
   if(newFanspeed != 777777) {
     if(newFanspeed <= 100 && newFanspeed >= 0) {
@@ -60,28 +61,40 @@ void trigger1() {
   }
   myNex.writeStr("fanText.txt", String(fanspeed));
   set_fan_speed(fanspeed);
+  return;
+}
 
+// heatSpeed slider has been updated, ask Nextion for the new value 
+//Triggered by heatSlider Touch Move event 
+//printh 23 02 54 0A
+void trigger10() {
 
   double newHeatSliderValue = myNex.readNumber("heatSlider.val");
   if(newHeatSliderValue != 777777) {
     
     if(heatMode==HEATMODE_PWR) {
-      pwrSetpoint = newHeatSliderValue;
-      myNex.writeStr("pwrText.txt", String(pwrSetpoint, 0));
-
+      
+      if(newHeatSliderValue >= 0 && newHeatSliderValue <= 100) { //todo: make the ranges #define values 
+        pwrSetpoint = newHeatSliderValue;
+        myNex.writeStr("pwrText.txt", String(pwrSetpoint, 0));
+      }
     } else if (heatMode==HEATMODE_PID) {
-      pidSetpoint = newHeatSliderValue;
-      myNex.writeStr("pidText.txt", String(pidSetpoint, 0));
+      if(newHeatSliderValue >= 1 && newHeatSliderValue <= 250) {
+        pidSetpoint = newHeatSliderValue;
+        myNex.writeStr("pidText.txt", String(pidSetpoint, 0));
+      }
     }
   }
-      
+  
+  
+  
   if(MODE==4) {
     set_heater_output_manual(pwrSetpoint);
   }
-   return; 
+
+  
+  return;
 }
-
-
 
 
 

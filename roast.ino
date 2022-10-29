@@ -24,9 +24,9 @@ void setup() {
   set_button_enable(PIDBTN, 1);
   set_button_enable(AUTOBTN, 0);
   
-  setup_pid_timer();
+  
   initialize_pid(0); //initialize pid with a default setpoint of 40c. Leave in manual mode by default
-  set_pid_timer_enable(1);
+
   disable_heater(); //heater should be off by default, but confirm here
   
   setup_thermocouple();
@@ -43,5 +43,6 @@ void loop() {
 
    chamberTemp=read_thermocouple_temp();
    ambientTemp=read_ambient_temp();
-   delay(10); //probably not necessary, but here to prevent too much i2c churn 
+   run_pid();
+   delay(100);
 }

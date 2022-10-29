@@ -18,8 +18,7 @@ void disable_fan();
 int is_fan_on();
 
 void setup_heat();
-void set_pid_timer_enable(int timer_enabled);
-void setup_pid_timer();
+
 void set_heater_output_manual(float heater_percent);
 void initialize_pid(double init_setpoint);
 
@@ -33,6 +32,7 @@ void setup_thermocouple();
 double read_thermocouple_temp();
 double read_ambient_temp();
 
+void run_pid();
 /* ********************************  PIN DEFINITIONS  ********************************* */
 
 //todo: can these be #defines to save memory?
@@ -143,29 +143,7 @@ void setup_heat() {
   return;
 }
 
-void set_pid_timer_enable(int timer_enabled) {
-  
-  cli(); //disable interrupts
-  if(timer_enabled) {
-    TIMSK2 |= B00000100;        //Set OCIE1B to 1 so we enable compare match B
-  } else {
-    TIMSK2 &= B11111011;        //Clear OCIE1B so we disable compare match B
-  }
-  sei();                      //Enable back the interrupts
-  return;
-}
 
-void setup_pid_timer() {
-  //setup timer2 interrupt on a ~10ms period 
-  //will call ISR(TIMER2_COMPB_vect) every timer period 
-   cli(); //disable interrupts
-   TCCR2A = 0;
-   TCCR2B = 0;
-   TCCR2B |= B00000111;        //Set CS20, CS21 and CS22 to 1 so we get prescalar 1024
-   OCR2B = 156;                //Finally we set compare register B to this value -- set for approx 10ms period 
-   set_pid_timer_enable(0);    //Don't enable the timer by default
-   sei();                      //Enable back the interrupts
-}
 
 
 void set_heater_output_manual(float heater_percent) {
@@ -196,33 +174,33 @@ void disable_heater() {
 }
 
 
-ISR(TIMER2_COMPB_vect){                               
+void run_pid() {                             
       //This interrupt routine is configured by setup_pid_timer()
-      static int isr_count = 0;
+      
 
       //Measure temperatures 
       onboardTemp=read_onboard_temp(); //todo: average this reading (inside of temp routine or here?)
             
       //Process PID loop every 20 interrupt calls, manage duty cycle of heater 
-      isr_count = (isr_count + 1) % 20; 
       
-      if(isr_count == 0) {
-        myPID.Compute();
-        unsigned long now = millis();
-        if (now - windowStartTime > pidWindowSize)
-        { //time to shift the Relay Window
-          windowStartTime += pidWindowSize;
-        }
-        
-        if (heatOnTime > now - windowStartTime) {
-          digitalWrite(heat_enable_pin, 1);
-        } else {
-          digitalWrite(heat_enable_pin, 0);
-        }
-
-        pidPwrOutput = int(float(heatOnTime)/float(pidWindowSize)*100);
-
+      
+      
+      myPID.Compute();
+      unsigned long now = millis();
+      if (now - windowStartTime > pidWindowSize)
+      { //time to shift the Relay Window
+        windowStartTime += pidWindowSize;
       }
+        
+      if (heatOnTime > now - windowStartTime) {
+        digitalWrite(heat_enable_pin, 1);
+      } else {
+        digitalWrite(heat_enable_pin, 0);
+      }
+
+      pidPwrOutput = int(float(heatOnTime)/float(pidWindowSize)*100);
+
+    
       return;
 }
 
