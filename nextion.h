@@ -214,9 +214,12 @@ void set_setpoint_mode(int new_setpoint_mode) {
     myNex.writeNum("heatSlider.minval", 0);
     myNex.writeNum("heatSlider.maxval", 100);
     myNex.writeNum("heatSlider.pco", 65519);
+    myNex.writeNum("heatPlusBtn.bco", 65519);
+    myNex.writeNum("heatMinusBtn.bco", 65519); //todo, make these color values #defines 
     myNex.writeNum("heatSlider.val", pwrSetpoint);
     myNex.writeStr("pwrText.txt", String(pwrSetpoint,0));
     myNex.writeStr("pidText.txt", "n/a");
+    
     
     heatMode=HEATMODE_PWR;
     
@@ -225,6 +228,8 @@ void set_setpoint_mode(int new_setpoint_mode) {
     myNex.writeNum("heatSlider.minval", 1);
     myNex.writeNum("heatSlider.maxval", 250);
     myNex.writeNum("heatSlider.pco", 34800);
+    myNex.writeNum("heatPlusBtn.bco", 34800);
+    myNex.writeNum("heatMinusBtn.bco", 34800);
     myNex.writeNum("heatSlider.val", pidSetpoint);
     myNex.writeStr("pidText.txt", String(pidSetpoint,0));
 

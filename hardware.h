@@ -70,8 +70,8 @@ double ambientTemp = 25; //temperature measured at the cold junction of the MCP9
 
 unsigned long windowStartTime; //this is updated as part of the PID processing to handle heat PWM duty cycle 
 
-double Kp=2;
-double Ki=5;
+double Kp=5;
+double Ki=3;
 double Kd=2;
 PID myPID(&chamberTemp, &heatOnTime, &pidSetpoint, Kp, Ki, Kd, DIRECT);
 

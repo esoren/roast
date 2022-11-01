@@ -49,3 +49,46 @@ end
 figure(1); clf; 
 plot(1:duration, curve);
 grid on;
+
+
+%% solution that can be run on an individual point
+
+
+
+
+curveStartTemp  = 100;
+curveEndTemp    = 234;
+curveEndTime    = 600;
+curveBend       = 20;
+curveRampTime   = 100;
+currentTime     = 50;
+
+for currentTime = 1:curveEndTime
+    % first calculate without the bend 
+
+    slope = (curveEndTemp-curveStartTemp)/curveEndTime; %C/S
+    currentTemp = curveStartTemp + slope*currentTime;
+
+    % calculate the bend value
+    if(currentTime == curveRampTime)
+        bend = curveBend;
+    elseif(currentTime < curveRampTime)
+        bendSlope = curveBend/curveRampTime;
+        bend = bendSlope*currentTime;
+    else
+        bendSlope = curveBend/(curveEndTime-curveRampTime);
+        bend = bendSlope*(curveEndTime-currentTime);
+    end
+    
+    % combine
+    currentTemp = currentTemp + bend;
+    
+    ct(currentTime) = currentTemp;
+end
+
+%
+figure(2); clf; 
+plot(1:curveEndTime, ct);
+grid on;
+
+

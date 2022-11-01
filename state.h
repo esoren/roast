@@ -5,6 +5,10 @@ int MODE = 0;
 /* prototypes */ 
 void enter_mode(int newmode);
 void update_mode(int event);
+void setAutoTimerSeconds(int secs);
+void enableAutoTimer();
+void disableAutoTimer();
+void initAutoTimer();
 
 void enter_mode(int newmode) {
   switch(newmode) {
@@ -22,6 +26,8 @@ void enter_mode(int newmode) {
           
           set_button_state(   FANBTN,   0);
           set_button_state(   PIDBTN,   0);
+
+          disableAutoTimer();
 
           MODE=0;
           break;
@@ -41,6 +47,9 @@ void enter_mode(int newmode) {
           
           set_button_state(   FANBTN,   0);
           set_button_state(   PIDBTN,   1);
+
+          disableAutoTimer();
+          
           MODE=1;
           break;
 
@@ -60,6 +69,9 @@ void enter_mode(int newmode) {
           set_button_state(   FANBTN,   1);
           set_button_state(   HEATBTN,  0);
           set_button_state(   PIDBTN,   0);
+
+          disableAutoTimer();
+          
           MODE=2;
           break;
 
@@ -78,6 +90,9 @@ void enter_mode(int newmode) {
           set_button_state(   FANBTN,   1);
           set_button_state(   HEATBTN,  0);
           set_button_state(   PIDBTN,   1);
+
+          disableAutoTimer();
+          
           MODE=3;
           break;
 
@@ -95,6 +110,9 @@ void enter_mode(int newmode) {
           set_button_state(   FANBTN,   1);
           set_button_enable(  HEATBTN,  1);
           set_button_state(   PIDBTN,   0);
+
+          disableAutoTimer();
+          
           MODE=4;
           break;
 
@@ -113,6 +131,8 @@ void enter_mode(int newmode) {
           set_button_enable(  HEATBTN,  1);
           set_button_state(   PIDBTN,   1);
           set_button_state(   AUTOBTN,  0);
+
+          disableAutoTimer();
           
           MODE=5;
           break;
@@ -132,6 +152,12 @@ void enter_mode(int newmode) {
           set_button_enable(  HEATBTN,  1);
           set_button_state(   PIDBTN,   1);
           set_button_state(   AUTOBTN,  1);
+
+          setAutoTimerSeconds(0);
+          initAutoTimer();
+          enableAutoTimer();
+          
+          
           
           MODE=6;
           break;
