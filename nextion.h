@@ -17,6 +17,7 @@ extern int MODE;
 //trigger8  - autoBtn OFF
 //trigger9  - autoBtn ON
 //trigger10 - heatSlider Touch Move 
+//trigger11 - calculate auto curve
 
 void update_mode(int event);
 
