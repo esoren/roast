@@ -9,30 +9,6 @@
 #define HEATMODE_PWR 0
 #define HEATMODE_PID 1
 
-/* ****************************** FUNCTION PROTOTYPES *****************************  */
-
-void setup_fan();
-void set_fan_speed(int speed);
-void enable_fan();
-void disable_fan();
-int is_fan_on();
-
-void setup_heat();
-
-void set_heater_output_manual(float heater_percent);
-void initialize_pid(double init_setpoint);
-
-void disable_heater();
-
-
-int read_onboard_temp();
-void set_button_enable(int button, int enable);
-
-void setup_thermocouple();
-double read_thermocouple_temp();
-double read_ambient_temp();
-
-void run_pid();
 /* ********************************  PIN DEFINITIONS  ********************************* */
 
 //todo: can these be #defines to save memory?
@@ -182,7 +158,11 @@ void disable_heater() {
 
 
 void run_pid() {                             
-      //This interrupt routine is configured by setup_pid_timer()
+      //the run_pid name is a bit of a misnomer, because this runs in both PID mode and PWR mode. 
+      //this should run on a regular basis whenever the heater is enabled. 
+      // in PID mode the PID is configured for automatic operation and automatically sets the heatOnTime variable. 
+      // in PWR mode the PID is configured for manual mode and heatOnTime is set by user input. This function still handles the duty cycle of the motor relay. 
+      
       onboardTemp = read_onboard_temp(); 
 
       //todo: the section of code below can be set to run only when PID is enabled       

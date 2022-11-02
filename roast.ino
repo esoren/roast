@@ -2,12 +2,11 @@
 #include <PID_v1.h>
 
 EasyNex myNex(Serial);
+#include "prototypes.h"
 #include "hardware.h"
 #include "nextion.h"
 #include "state.h"
 #include "auto.h"
-
-
 
 void setup() {
 

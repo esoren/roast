@@ -13,15 +13,6 @@ int curveEndTime = 0;
 int curveBend = 0;
 int curveRampTime = 0; //time to reach the peak of the bend 
 
-void writeCurveDispToNextion (unsigned char displayWaveform[]);
-void writeAndConfirmNumber(String variableToWrite, unsigned char value);
-unsigned char calculateAutoTemp(int currentTimeInSeconds);
-void setAutoTimerSeconds(int secs);
-void enableAutoTimer();
-void disableAutoTimer();
-void initAutoTimer();
-void setAutoProgress(int currentTimeInSeconds);
-
 //Receive request from nextion display to calculate the display curve and update display values 
 //Triggered by page1 calcButton
 //printh 23 02 54 0B

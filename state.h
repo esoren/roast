@@ -1,14 +1,5 @@
 
-
 int MODE = 0;
-
-/* prototypes */ 
-void enter_mode(int newmode);
-void update_mode(int event);
-void setAutoTimerSeconds(int secs);
-void enableAutoTimer();
-void disableAutoTimer();
-void initAutoTimer();
 
 void enter_mode(int newmode) {
   switch(newmode) {

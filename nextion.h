@@ -19,7 +19,7 @@ extern int MODE;
 //trigger10 - heatSlider Touch Move 
 //trigger11 - calculate auto curve
 
-void update_mode(int event);
+
 
 //Write MCU global variables to Nextion display  
 //Triggered by mcuUpdateTimer every 500ms
@@ -87,12 +87,9 @@ void trigger10() {
     }
   }
   
-  
-  
   if(MODE==4) {
     set_heater_output_manual(pwrSetpoint);
   }
-
   
   return;
 }
@@ -221,9 +218,7 @@ void set_setpoint_mode(int new_setpoint_mode) {
     myNex.writeStr("pidText.txt", "n/a");
     myNex.writeNum("powerMode", 0); //the nextion needs to know which mode is set so that the slider updates the appropriate value
     
-    
     heatMode=HEATMODE_PWR;
-    
       
   } else if (new_setpoint_mode == SETPOINT_PID) {
     myNex.writeNum("heatSlider.minval", 1);
@@ -236,7 +231,6 @@ void set_setpoint_mode(int new_setpoint_mode) {
     myNex.writeNum("powerMode", 1); //the nextion needs to know which mode is set so that the slider updates the appropriate value
     
     heatMode=HEATMODE_PID; 
-    
     
   }
   
