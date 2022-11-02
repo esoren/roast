@@ -1,8 +1,5 @@
 /* LIST OF EACH NEXTION TRIGGER CALLBACK */
 
-extern int MODE; 
-
-
 #define SETPOINT_PWR 0
 #define SETPOINT_PID 1
 
@@ -18,7 +15,7 @@ extern int MODE;
 //trigger9  - autoBtn ON
 //trigger10 - heatSlider Touch Move 
 //trigger11 - calculate auto curve
-
+//trigger12 - update auto temp 
 
 
 //Write MCU global variables to Nextion display  
@@ -55,7 +52,7 @@ void trigger1() {
 
   
   double newFanspeed = myNex.readNumber("fanSlider.val");
-  if(newFanspeed != 777777) {
+  if(newFanspeed != 777777) { //777777 = error flag from easyNex library
     if(newFanspeed <= 100 && newFanspeed >= 0) {
       fanspeed = newFanspeed;
     }
@@ -71,7 +68,7 @@ void trigger1() {
 void trigger10() {
 
   double newHeatSliderValue = myNex.readNumber("heatSlider.val");
-  if(newHeatSliderValue != 777777) {
+  if(newHeatSliderValue != 777777) { //777777 = error flag from easyNex library
     
     if(heatMode==HEATMODE_PWR) {
       
@@ -95,27 +92,6 @@ void trigger10() {
 }
 
 
-
-  
-
-#define FANBTN 0
-#define FANBTN_OFF_COLOR 4
-#define FANBTN_ON_COLOR 3000
-
-#define HEATBTN 1
-#define HEATBTN_OFF_COLOR 14439
-#define HEATBTN_ON_COLOR 63488
-
-#define PIDBTN 2
-#define PIDBTN_OFF_COLOR 256
-#define PIDBTN_ON_COLOR 2016
-
-#define AUTOBTN 3
-#define AUTOBTN_OFF_COLOR 6150
-#define AUTOBTN_ON_COLOR 32799
-
-#define TXT_ENABLE_COLOR 65535
-#define TXT_DISABLE_COLOR 19017
 
 void set_button_enable(int button, int enable) {
     // button = FANBTN, HEATBTN, PIDBTN, or AUTOBTN define
@@ -236,17 +212,6 @@ void set_setpoint_mode(int new_setpoint_mode) {
   
   return;
 }
-
-
-#define EVENT_FAN_BUTTON_ON          0
-#define EVENT_FAN_BUTTON_OFF         1
-#define EVENT_HEAT_BUTTON_ON         2
-#define EVENT_HEAT_BUTTON_OFF        3
-#define EVENT_PID_BUTTON_ON          4
-#define EVENT_PID_BUTTON_OFF         5
-#define EVENT_AUTO_BUTTON_ON         6
-#define EVENT_AUTO_BUTTON_OFF        7
-
 
 //fanBtn Touch Turned Off Event
 //printh 23 02 54 02

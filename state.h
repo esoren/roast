@@ -1,5 +1,5 @@
 
-int MODE = 0;
+
 
 void enter_mode(int newmode) {
   switch(newmode) {

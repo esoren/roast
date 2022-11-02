@@ -1,8 +1,14 @@
 #include "EasyNextionLibrary.h"
 #include <PID_v1.h>
+#include <Wire.h>
+#include <Adafruit_I2CDevice.h>
+#include <Adafruit_I2CRegister.h>
+#include "Adafruit_MCP9600.h"
 
 EasyNex myNex(Serial);
 #include "prototypes.h"
+#include "defines.h"
+#include "globals.h"
 #include "hardware.h"
 #include "nextion.h"
 #include "state.h"

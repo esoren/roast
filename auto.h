@@ -7,11 +7,7 @@
 #define PAGENUM_LENGTH 10
 #define NUMPAGES 22
 
-int curveStartTemp = 0;
-int curveEndTemp = 0;
-int curveEndTime = 0;
-int curveBend = 0;
-int curveRampTime = 0; //time to reach the peak of the bend 
+
 
 //Receive request from nextion display to calculate the display curve and update display values 
 //Triggered by page1 calcButton

@@ -1,73 +1,4 @@
 
-#include <Wire.h>
-#include <Adafruit_I2CDevice.h>
-#include <Adafruit_I2CRegister.h>
-#include "Adafruit_MCP9600.h"
-
-
-
-#define HEATMODE_PWR 0
-#define HEATMODE_PID 1
-
-/* ********************************  PIN DEFINITIONS  ********************************* */
-
-//todo: can these be #defines to save memory?
-#define fan_in1_pin 9 //used for fan PWM control
-#define fan_in2_pin 10
-#define fan_enable_pin 2
-#define heat_enable_pin 4 
-int onboard_thermistor_pin = A0;
-#define thermocouple_pwr_pin 7
-
-
-/* ******************************** GLOBALS ***************************************** */
-
-int fanspeed = 100; //setting for the fan speed, updated when the user adjusts the fan speed slider 
-
-unsigned int pidWindowSize = 3600; //period in ms for relay PWM 
-
-
-double heatOnTime = 0; //when PID is enabled this value is written by reference
-                       //when PID is disabled this value can be written manually
-                       //This should be between 0 and pidWindowSize  
-                       //If this is set to pidWindowSize the heater will always be on 
-
-double   pidPwrOutput = 0; //percent of power enabled when PID is running.
-                        //This is used to update the display
-                        //= heatOnTime/pidWindowSize*100
-                        // this is updated in the PID routine 
-                       
-double pwrSetpoint = 0;    //power level in PWR mode 0-100%
-double pidSetpoint = 50;   //pid setpoint 1-250C
-
-int onboardTemp = 25; //temperature of the onboard thermistor. This is updated inside of the PID timer interrupt routine
-double chamberTemp = 25; //temperature measured by a type-K thermocouple inside of the heating chamber. 
-int ambientTemp = 25; //temperature measured at the cold junction of the MCP9600
-
-unsigned long windowStartTime; //this is updated as part of the PID processing to handle heat PWM duty cycle 
-
-const double aggKp=120;
-const double aggKi=30;
-const double aggKd=60;
-
-const double consKp=70;
-const double consKi=15;
-const double consKd=10;
-
-const double aggConsThresh=10;
-
-PID myPID(&chamberTemp, &heatOnTime, &pidSetpoint, aggKp, aggKi, aggKd, DIRECT);
-
-
-int heatMode = HEATMODE_PWR; //0 = PID disabled (PWR mode), 1 = PID enabled (PID mode)
-
-/* ************************************  CONFIG  ************************************* */
-
-const float fan_min_duty = 0.70*255; 
-const float fan_max_duty = 0.99*255;
-
-
-
 /* **********************************  FAN CONTROL  *********************************** */
 
 void setup_fan() {
@@ -219,12 +150,6 @@ int read_onboard_temp() {
 
 /* *********************************** THERMOCOUPLE  ********************************* */
 
-#define MCP_I2C_ADDRESS (0x67)
-
-Adafruit_MCP9600 mcp;
-
-
-
 void setup_thermocouple() {
    mcp.begin(MCP_I2C_ADDRESS);
    mcp.setADCresolution(MCP9600_ADCRESOLUTION_18);
@@ -235,10 +160,7 @@ void setup_thermocouple() {
 }
 
 
-#define THERMOCOUPLE_LPF_ALPHA 0.6
-
 //uses a single pole LPF to smooth out the temp data 
-
 double read_thermocouple_temp() {
   static bool first_run=1; //initialize the filter on the first run 
   
