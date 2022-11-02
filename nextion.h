@@ -219,6 +219,7 @@ void set_setpoint_mode(int new_setpoint_mode) {
     myNex.writeNum("heatSlider.val", pwrSetpoint);
     myNex.writeStr("pwrText.txt", String(pwrSetpoint,0));
     myNex.writeStr("pidText.txt", "n/a");
+    myNex.writeNum("powerMode", 0); //the nextion needs to know which mode is set so that the slider updates the appropriate value
     
     
     heatMode=HEATMODE_PWR;
@@ -232,7 +233,7 @@ void set_setpoint_mode(int new_setpoint_mode) {
     myNex.writeNum("heatMinusBtn.bco", 34800);
     myNex.writeNum("heatSlider.val", pidSetpoint);
     myNex.writeStr("pidText.txt", String(pidSetpoint,0));
-
+    myNex.writeNum("powerMode", 1); //the nextion needs to know which mode is set so that the slider updates the appropriate value
     
     heatMode=HEATMODE_PID; 
     

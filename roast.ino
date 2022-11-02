@@ -32,16 +32,20 @@ void setup() {
   setup_thermocouple();
   
   enter_mode(0); //enter state machine for UI control 
-  myNex.writeStr("modeText.txt", "R"); //indiciate that the arduino has just come out of reset 
   
 }
+
 
 
 
 void loop() {
    myNex.NextionListen();
 
+    
    chamberTemp=read_thermocouple_temp();
+
+
+   
    ambientTemp=read_ambient_temp();
    run_pid();
    delay(100);

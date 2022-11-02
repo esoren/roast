@@ -36,19 +36,19 @@ void run_pid();
 /* ********************************  PIN DEFINITIONS  ********************************* */
 
 //todo: can these be #defines to save memory?
-int fan_in1_pin = 9; //used for fan PWM control
-int fan_in2_pin = 10;
-int fan_enable_pin = 2;
-int heat_enable_pin = 4; 
+#define fan_in1_pin 9 //used for fan PWM control
+#define fan_in2_pin 10
+#define fan_enable_pin 2
+#define heat_enable_pin 4 
 int onboard_thermistor_pin = A0;
-int thermocouple_pwr_pin = 7;
+#define thermocouple_pwr_pin 7
 
 
 /* ******************************** GLOBALS ***************************************** */
 
 int fanspeed = 100; //setting for the fan speed, updated when the user adjusts the fan speed slider 
 
-unsigned int pidWindowSize = 2500; //period in ms for relay PWM 
+unsigned int pidWindowSize = 3600; //period in ms for relay PWM 
 
 
 double heatOnTime = 0; //when PID is enabled this value is written by reference
@@ -64,16 +64,23 @@ double   pidPwrOutput = 0; //percent of power enabled when PID is running.
 double pwrSetpoint = 0;    //power level in PWR mode 0-100%
 double pidSetpoint = 50;   //pid setpoint 1-250C
 
-double onboardTemp = 25; //temperature of the onboard thermistor. This is updated inside of the PID timer interrupt routine
+int onboardTemp = 25; //temperature of the onboard thermistor. This is updated inside of the PID timer interrupt routine
 double chamberTemp = 25; //temperature measured by a type-K thermocouple inside of the heating chamber. 
-double ambientTemp = 25; //temperature measured at the cold junction of the MCP9600
+int ambientTemp = 25; //temperature measured at the cold junction of the MCP9600
 
 unsigned long windowStartTime; //this is updated as part of the PID processing to handle heat PWM duty cycle 
 
-double Kp=5;
-double Ki=3;
-double Kd=2;
-PID myPID(&chamberTemp, &heatOnTime, &pidSetpoint, Kp, Ki, Kd, DIRECT);
+const double aggKp=120;
+const double aggKi=30;
+const double aggKd=60;
+
+const double consKp=70;
+const double consKi=15;
+const double consKd=10;
+
+const double aggConsThresh=10;
+
+PID myPID(&chamberTemp, &heatOnTime, &pidSetpoint, aggKp, aggKi, aggKd, DIRECT);
 
 
 int heatMode = HEATMODE_PWR; //0 = PID disabled (PWR mode), 1 = PID enabled (PID mode)
@@ -176,14 +183,15 @@ void disable_heater() {
 
 void run_pid() {                             
       //This interrupt routine is configured by setup_pid_timer()
-      
+      onboardTemp = read_onboard_temp(); 
 
-      //Measure temperatures 
-      onboardTemp=read_onboard_temp(); //todo: average this reading (inside of temp routine or here?)
-            
-      //Process PID loop every 20 interrupt calls, manage duty cycle of heater 
-      
-      
+      //todo: the section of code below can be set to run only when PID is enabled       
+      double gap = abs(chamberTemp-pidSetpoint); //distance away from setpoint
+      if (gap < aggConsThresh) {  
+        myPID.SetTunings(consKp, consKi, consKd); //we're close to setpoint, use conservative tuning parameters
+      } else {
+        myPID.SetTunings(aggKp, aggKi, aggKd); //we're far from setpoint, use aggressive tuning parameters
+      }
       
       myPID.Compute();
       unsigned long now = millis();
@@ -246,9 +254,29 @@ void setup_thermocouple() {
    return;
 }
 
+
+#define THERMOCOUPLE_LPF_ALPHA 0.6
+
+//uses a single pole LPF to smooth out the temp data 
+
 double read_thermocouple_temp() {
-  double tempval = mcp.readThermocouple();
-  return tempval;
+  static bool first_run=1; //initialize the filter on the first run 
+  
+  static double prevOutput;
+  static double filteredOutput=25; 
+  double currentMeasurement = 25;
+  
+  prevOutput=filteredOutput;
+  currentMeasurement = mcp.readThermocouple();
+  
+  if(first_run==1) {
+    prevOutput=currentMeasurement;
+    first_run=0;
+  }
+  
+  filteredOutput = THERMOCOUPLE_LPF_ALPHA*currentMeasurement + (1-THERMOCOUPLE_LPF_ALPHA)*prevOutput; 
+  
+  return currentMeasurement;
 }
 
 double read_ambient_temp() {

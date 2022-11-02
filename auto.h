@@ -3,9 +3,9 @@
 
 
 
-
-#define PAGENUM_LENGTH 20
-#define NUMPAGES 11
+//Note: insufficent memory for a page length of 10
+#define PAGENUM_LENGTH 10
+#define NUMPAGES 22
 
 int curveStartTemp = 0;
 int curveEndTemp = 0;
@@ -29,8 +29,9 @@ void trigger11() {
   unsigned char displayWaveform [PAGENUM_LENGTH];
   static int pageNum = 0;
   int currentTimeInSeconds = 0;
-  int newCalc = myNex.readNumber("newCalc"); //this is true if the calculate button was just pushed 
-  if(newCalc == 1) {
+  double newCalc = myNex.readNumber("newCalc"); //this is true if the calculate button was just pushed 
+  
+  if(newCalc == 1 || newCalc == 777777) { //if the button is first pushed start a new calculation. If a bad read from mcu, restart calculation 
     //the first time this function is called, retrieve each of the slider values, calculate the curve, and write page0
     curveStartTemp  = myNex.readNumber("startSlider.val");
     curveEndTemp    = myNex.readNumber("endSlider.val");
@@ -43,7 +44,8 @@ void trigger11() {
     myNex.writeStr("page1.statusText.txt", "calculating..");
     pageNum = 0;
     writeAndConfirmNumber("newCalc", 0); 
-  }
+  } 
+    
 
 
   if(pageNum == NUMPAGES) { //update complete
@@ -85,7 +87,6 @@ void writeAndConfirmNumber(String variableToWrite, unsigned char value) {
 
 //this unrolled for loop is required because the nextion doesn't allow user-defined arrays
 void writeCurveDispToNextion (unsigned char displayWaveform[]) {
-  int delay_time = 10;
   writeAndConfirmNumber("curveDisp0", displayWaveform[0]);
   writeAndConfirmNumber("curveDisp1", displayWaveform[1]);
   writeAndConfirmNumber("curveDisp2", displayWaveform[2]);
@@ -96,17 +97,8 @@ void writeCurveDispToNextion (unsigned char displayWaveform[]) {
   writeAndConfirmNumber("curveDisp7", displayWaveform[7]);
   writeAndConfirmNumber("curveDisp8", displayWaveform[8]);
   writeAndConfirmNumber("curveDisp9", displayWaveform[9]);
-  writeAndConfirmNumber("curveDisp10", displayWaveform[10]);
-  writeAndConfirmNumber("curveDisp11", displayWaveform[11]);
-  writeAndConfirmNumber("curveDisp12", displayWaveform[12]);
-  writeAndConfirmNumber("curveDisp13", displayWaveform[13]);
-  writeAndConfirmNumber("curveDisp14", displayWaveform[14]);
-  writeAndConfirmNumber("curveDisp15", displayWaveform[15]);
-  writeAndConfirmNumber("curveDisp16", displayWaveform[16]);
-  writeAndConfirmNumber("curveDisp17", displayWaveform[17]);
-  writeAndConfirmNumber("curveDisp18", displayWaveform[18]);
-  writeAndConfirmNumber("curveDisp19", displayWaveform[19]);
-  
+
+   
   myNex.writeNum("mcuFinishedUpdatingDisplay", 1); 
   
   return;
