@@ -5,7 +5,7 @@
 #include "nextion.h"
 
 int MODE = 0; //this indicates which mode the device is in. Fan only, Fan+Heat, etc. See state diagram: "roast_state.drawio.png" for more info. 
-
+              
 void enter_mode(int newmode) {
   switch(newmode) {
     case 0:
