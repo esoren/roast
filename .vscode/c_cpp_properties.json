@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\libraries\\SPI\\**",
+                "${workspaceFolder}/**",
+                "C:\\Program Files (x86)\\Arduino\\**",
+                "C:\\Users\\Eric\\OneDrive\\Documents\\Arduino\\libraries\\**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "USBCON",
+                "ARDUINO=10813"
+            ],
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-msvc-x64"
+            
+        }
+    ],
+    "version": 4
+}
