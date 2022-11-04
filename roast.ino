@@ -1,20 +1,15 @@
-
-
-
-
-
 #include "EasyNextionLibrary.h"
 #include <PID_v1.h>
 #include <Wire.h>
 #include <Adafruit_I2CDevice.h>
 #include <Adafruit_I2CRegister.h>
 #include "Adafruit_MCP9600.h"
-#include "defines.h"
-#include "globals.h"
-#include "hardware.h"
-#include "nextion.h"
-#include "state.h"
-#include "auto.h"
+#include "src/defines.h"
+#include "src/globals.h"
+#include "src/hardware.h"
+#include "src/nextion.h"
+#include "src/state.h"
+#include "src/auto.h"
 
 void setup() {
 
@@ -41,8 +36,6 @@ void setup() {
   enter_mode(0); //enter state machine for UI control 
   
 }
-
-
 
 
 void loop() {

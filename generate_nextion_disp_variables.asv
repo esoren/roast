@@ -1,7 +1,0 @@
-%% variable declaration
-clc
-for inc = 0:228
-    fprintf('int curveDisp%i=0\n',inc);
-end
-
-
