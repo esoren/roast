@@ -77,12 +77,12 @@ void trigger10() {
     
     if(heatMode==HEATMODE_PWR) {
       
-      if(newHeatSliderValue >= 0 && newHeatSliderValue <= 100) { //todo: make the ranges #define values 
+      if(newHeatSliderValue >= 0 && newHeatSliderValue <= 100) { 
         pwrSetpoint = newHeatSliderValue;
         myNex.writeStr("pwrText.txt", String(pwrSetpoint, 0));
       }
     } else if (heatMode==HEATMODE_PID) {
-      if(newHeatSliderValue >= 1 && newHeatSliderValue <= 250) {
+      if(newHeatSliderValue >= 1 && newHeatSliderValue <= PID_MAX_TEMP) {
         pidSetpoint = newHeatSliderValue;
         myNex.writeStr("pidText.txt", String(pidSetpoint, 0));
       }
