@@ -45,8 +45,8 @@ void trigger11() {
   if(pageNum == NUMPAGES) { //Is the final page update complete?
     myNex.writeNum("calcTimer.en", 0);
     myNex.writeStr("statusText.txt", "calculation complete"); 
-    myNex.writeNum("curveDisp.gdc", 33808);
-    myNex.writeNum("curveDisp.pco0", 64512);
+    myNex.writeNum("curveDisp.gdc", CURVE_DISP_GRID_COLOR);
+    myNex.writeNum("curveDisp.pco0", CURVE_DISP_BEAM_COLOR);
     myNex.writeNum("calcProgress.val", 0); //only show the status display when calculation is being performed 
     myNex.writeNum("autoSetup", 1); //used to indicate that auto setup has been completed at least once 
     pageNum=0;

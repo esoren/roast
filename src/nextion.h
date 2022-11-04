@@ -7,25 +7,30 @@ extern EasyNex myNex;
 #define HEATMODE_PWR 0
 #define HEATMODE_PID 1
 
-/* NEXTION BUTTONS AND COLORS */
+/* NEXTION BUTTONS */  //used by set_button_enable() and set_button_state()
 #define FANBTN 0
+#define HEATBTN 1
+#define PIDBTN 2
+#define AUTOBTN 3
+
+/* NEXTION COLORS */
 #define FANBTN_OFF_COLOR 4
 #define FANBTN_ON_COLOR 3000
 
-#define HEATBTN 1
 #define HEATBTN_OFF_COLOR 14439
 #define HEATBTN_ON_COLOR 63488
 
-#define PIDBTN 2
 #define PIDBTN_OFF_COLOR 256
 #define PIDBTN_ON_COLOR 2016
 
-#define AUTOBTN 3
 #define AUTOBTN_OFF_COLOR 6150
 #define AUTOBTN_ON_COLOR 32799
 
 #define TXT_ENABLE_COLOR 65535
 #define TXT_DISABLE_COLOR 19017
+
+#define CURVE_DISP_GRID_COLOR 33808
+#define CURVE_DISP_BEAM_COLOR 64512
 
 void trigger0();
 void trigger1();

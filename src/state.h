@@ -6,8 +6,8 @@ extern int heatMode;
 void enter_mode(int newmode);
 void update_mode(int event);
 int get_current_mode();
-/* STATE EVENTS */
 
+/* STATE EVENTS */
 #define EVENT_FAN_BUTTON_ON          0
 #define EVENT_FAN_BUTTON_OFF         1
 #define EVENT_HEAT_BUTTON_ON         2
