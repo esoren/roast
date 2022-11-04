@@ -5,7 +5,6 @@
 #include <Adafruit_I2CDevice.h>
 #include <Adafruit_I2CRegister.h>
 #include "Adafruit_MCP9600.h"
-#include "defines.h"
 #include "config.h"
 #include "hardware.h"
 #include "nextion.h"
@@ -52,6 +51,8 @@ PID myPID(&chamberTemp, &heatOnTime, &pidSetpoint, aggKp, aggKi, aggKd, DIRECT);
 
 int onboard_thermistor_pin = A0; //analog input pin used to read the onboard thermistor 
 
+Adafruit_MCP9600 mcp; //mcp object for reading from the thermocouple 
+
 /* **********************************  FAN CONTROL  *********************************** */
 
 void setup_fan() {
@@ -69,6 +70,9 @@ void setup_fan() {
 void set_fan_speed(int speed) {
   //speed is set from 0-100 pct of operating speed
 
+  const float fan_min_duty = FAN_MIN_DUTY_CYCLE*255; 
+  const float fan_max_duty = FAN_MAX_DUTY_CYCLE*255; 
+  
   if(speed > 100)
     speed = 100;
 
@@ -110,9 +114,6 @@ void setup_heat() {
   return;
 }
 
-
-
-
 void set_heater_output_manual(float heater_percent) {
   
   heatOnTime = (double)((heater_percent/100)*pidWindowSize);
@@ -121,7 +122,6 @@ void set_heater_output_manual(float heater_percent) {
   }
   return;
 }
-
 
 void initialize_pid(double init_setpoint) {
    windowStartTime = millis();
@@ -132,14 +132,20 @@ void initialize_pid(double init_setpoint) {
    return;
 }
 
-
-
 void disable_heater() {
   myPID.SetMode(MANUAL);
   set_heater_output_manual(0);
   return;
 }
 
+void set_pid_mode(int pid_mode) {
+  if(pid_mode == PID_MANUAL) {
+    myPID.SetMode(MANUAL) ;
+  } else {
+    myPID.SetMode(AUTOMATIC);
+  }
+  return;
+}
 
 void run_pid() {                             
       //the run_pid name is a bit of a misnomer, because this runs in both PID mode and PWR mode. 
@@ -176,10 +182,6 @@ void run_pid() {
       return;
 }
 
-
-  
-
-
 /* **********************************  TEMP READBACK  *********************************** */
 
 //read the onboard temp from the thermistor mounted under the heater element 
@@ -200,7 +202,6 @@ int read_onboard_temp() {
   return T; 
 }
 
-
 /* *********************************** THERMOCOUPLE  ********************************* */
 
 void setup_thermocouple() {
@@ -211,7 +212,6 @@ void setup_thermocouple() {
    double tempval = mcp.readThermocouple();
    return;
 }
-
 
 //uses a single pole LPF to smooth out the temp data 
 double read_thermocouple_temp() {

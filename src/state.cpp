@@ -1,13 +1,6 @@
 #include "EasyNextionLibrary.h"
-#include <PID_v1.h>
-#include <Wire.h>
-#include <Adafruit_I2CDevice.h>
-#include <Adafruit_I2CRegister.h>
-#include "Adafruit_MCP9600.h"
 #include "state.h"
 #include "hardware.h"
-#include "config.h"
-#include "defines.h"
 #include "auto.h"
 #include "nextion.h"
 
@@ -16,11 +9,11 @@ int MODE = 0; //this indicates which mode the device is in. Fan only, Fan+Heat, 
 void enter_mode(int newmode) {
   switch(newmode) {
     case 0:
-          myPID.SetMode(MANUAL);
+          set_pid_mode(PID_MANUAL);
           disable_heater();
           disable_fan();
           
-          set_setpoint_mode(SETPOINT_PWR);
+          set_setpoint_mode(HEATMODE_PWR);
           
           set_button_enable(  FANBTN,   1);
           set_button_enable(  HEATBTN,  0);
@@ -36,11 +29,11 @@ void enter_mode(int newmode) {
           break;
 
     case 1:
-          myPID.SetMode(MANUAL);
+          set_pid_mode(PID_MANUAL);
           disable_heater();
           disable_fan();
           
-          set_setpoint_mode(SETPOINT_PID);
+          set_setpoint_mode(HEATMODE_PID);
           
           set_button_enable(  FANBTN,   1);
           set_button_enable(  HEATBTN,  0);
@@ -56,11 +49,11 @@ void enter_mode(int newmode) {
           break;
 
     case 2: 
-          myPID.SetMode(MANUAL);
+          set_pid_mode(PID_MANUAL);
           disable_heater();
           enable_fan();
           
-          set_setpoint_mode(SETPOINT_PWR);
+          set_setpoint_mode(HEATMODE_PWR);
           
           set_button_enable(  FANBTN,   1);
           set_button_enable(  HEATBTN,  1);
@@ -77,11 +70,11 @@ void enter_mode(int newmode) {
           break;
 
      case 3: 
-          myPID.SetMode(MANUAL);
+          set_pid_mode(PID_MANUAL);
           disable_heater();
           enable_fan();
           
-          set_setpoint_mode(SETPOINT_PID);
+          set_setpoint_mode(HEATMODE_PID);
           
           set_button_enable(  FANBTN,   1);
           set_button_enable(  HEATBTN,  1);
@@ -98,8 +91,8 @@ void enter_mode(int newmode) {
           break;
 
     case 4: 
-          myPID.SetMode(MANUAL);
-          set_setpoint_mode(SETPOINT_PWR);
+          set_pid_mode(PID_MANUAL);
+          set_setpoint_mode(HEATMODE_PWR);
           enable_fan();
           set_heater_output_manual(pwrSetpoint);
           
@@ -118,9 +111,9 @@ void enter_mode(int newmode) {
           break;
 
      case 5: 
-          set_setpoint_mode(SETPOINT_PID);
+          set_setpoint_mode(HEATMODE_PID);
           enable_fan();
-          myPID.SetMode(AUTOMATIC);
+          set_pid_mode(PID_AUTO);
           
           
           set_button_enable(  FANBTN,   1);
@@ -139,9 +132,9 @@ void enter_mode(int newmode) {
           break;
      
       case 6:
-          set_setpoint_mode(SETPOINT_PID);
+          set_setpoint_mode(HEATMODE_PID);
           enable_fan();
-          myPID.SetMode(AUTOMATIC);
+          set_pid_mode(PID_AUTO);
           
           set_button_enable(  FANBTN,   1);
           set_button_enable(  HEATBTN,  1);
@@ -162,7 +155,7 @@ void enter_mode(int newmode) {
     
   }
 
-  myNex.writeStr("modeText.txt", String(MODE));
+  write_mode_to_display(MODE);
 }
 
 
@@ -266,4 +259,8 @@ void update_mode(int event) {
       }
       break;
   }
+}
+
+int get_current_mode() {
+  return MODE;
 }

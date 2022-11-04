@@ -9,10 +9,6 @@
 #include "hardware.h"
 #include "nextion.h"
 #include "state.h"
-#include "defines.h"
-
-
-/********** globals ************/
 
 //These curve values are used for auto operation. They are retrieved from the Nextion UI at the start of curve calculation. 
 int curveStartTemp = 0; //degrees C
@@ -20,8 +16,6 @@ int curveEndTemp = 0;   //degrees C
 int curveEndTime = 0;   //seconds
 int curveBend = 0;      //degrees C
 int curveRampTime = 0;  //seconds (time to reach the peak of the bend )
-
-
 
 //Receive request from nextion display to calculate the display curve and update display values 
 //Triggered by page1 calcButton
@@ -44,12 +38,11 @@ void trigger11() {
     
     myNex.writeStr("page1.statusText.txt", "calculating..");
     pageNum = 0;
-    writeAndConfirmNumber("newCalc", 0); 
+    writeAndConfirmNumber("newCalc", 0); //clear the newCalc flag so future calls to this function just write
+                                         //the next page to memory without reseting the calculation 
   } 
     
-
-
-  if(pageNum == NUMPAGES) { //update complete
+  if(pageNum == NUMPAGES) { //Is the final page update complete?
     myNex.writeNum("calcTimer.en", 0);
     myNex.writeStr("statusText.txt", "calculation complete"); 
     myNex.writeNum("curveDisp.gdc", 33808);
@@ -69,8 +62,6 @@ void trigger11() {
     myNex.writeNum("calcProgress.val", int(float(pageNum)/(NUMPAGES-1)*100));
     pageNum++;
   }
-  
-  
   
 }
 
@@ -97,15 +88,14 @@ void writeCurveDispToNextion (unsigned char displayWaveform[]) {
   writeAndConfirmNumber("curveDisp6", displayWaveform[6]);
   writeAndConfirmNumber("curveDisp7", displayWaveform[7]);
   writeAndConfirmNumber("curveDisp8", displayWaveform[8]);
-  writeAndConfirmNumber("curveDisp9", displayWaveform[9]);
-
-   
+  writeAndConfirmNumber("curveDisp9", displayWaveform[9]);  
+  //more lines must be added here if the number of pages is reduced
+ 
   myNex.writeNum("mcuFinishedUpdatingDisplay", 1); 
   
   return;
 }
   
-
 //uses these globals:
 //int curveStartTemp;
 //int curveEndTemp;
@@ -114,8 +104,10 @@ void writeCurveDispToNextion (unsigned char displayWaveform[]) {
 //int curveRampTime;
 
 unsigned char calculateAutoTemp(int currentTimeInSeconds) {
+  
   float slope, currentTemp, bendSlope, bend; 
   unsigned char currentTempOutput;
+
   // first calculate without the bend 
   slope = float(curveEndTemp-curveStartTemp)/curveEndTime;
   currentTemp = curveStartTemp + slope*currentTimeInSeconds;
@@ -138,7 +130,6 @@ unsigned char calculateAutoTemp(int currentTimeInSeconds) {
   return currentTempOutput;
 }
 
-  
 void enableAutoTimer() {
   myNex.writeNum("autoTimer.en", 1);
 }
@@ -163,7 +154,7 @@ void initAutoTimer() {
 }
 
 //receive request from autotimer to update PID auto temperature 
-//Triggered by page1 calcButton
+//Triggered by autoTimer on nextion display 
 //printh 23 02 54 0C
 
 void trigger12() {
