@@ -1,6 +1,13 @@
 #ifndef AUTO_H
 #define AUTO_H
 
+
+extern int curveStartTemp;
+extern int curveEndTemp;
+extern int curveEndTime;
+extern int curveBend;
+extern int curveRampTime;
+
 void trigger11();
 void writeAndConfirmNumber(String variableToWrite, unsigned char value);
 void writeCurveDispToNextion (unsigned char displayWaveform[]);

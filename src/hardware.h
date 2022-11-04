@@ -2,6 +2,33 @@
 #define HARDWARE_H
 
 
+extern int fanspeed; 
+
+extern double heatOnTime;
+
+extern double   pidPwrOutput;  
+
+extern double pwrSetpoint;
+extern double pidSetpoint;
+
+extern int onboardTemp;
+extern double chamberTemp;
+extern int ambientTemp;
+
+extern unsigned long windowStartTime;
+
+extern const double aggKp;
+extern const double aggKi;
+extern const double aggKd;
+
+extern const double consKp;
+extern const double consKi;
+extern const double consKd;
+
+extern const double aggConsThresh;
+
+extern int onboard_thermistor_pin;
+
 void setup_fan();
 void set_fan_speed(int speed);
 void enable_fan();

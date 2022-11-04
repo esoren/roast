@@ -6,10 +6,12 @@
 #include "Adafruit_MCP9600.h"
 #include "state.h"
 #include "hardware.h"
-#include "globals.h"
+#include "config.h"
 #include "defines.h"
 #include "auto.h"
 #include "nextion.h"
+
+int MODE = 0; //this indicates which mode the device is in. Fan only, Fan+Heat, etc. See state diagram: "roast_state.drawio.png" for more info. 
 
 void enter_mode(int newmode) {
   switch(newmode) {
@@ -33,7 +35,6 @@ void enter_mode(int newmode) {
           MODE=0;
           break;
 
-
     case 1:
           myPID.SetMode(MANUAL);
           disable_heater();
@@ -53,7 +54,6 @@ void enter_mode(int newmode) {
           
           MODE=1;
           break;
-
 
     case 2: 
           myPID.SetMode(MANUAL);
@@ -143,7 +143,6 @@ void enter_mode(int newmode) {
           enable_fan();
           myPID.SetMode(AUTOMATIC);
           
-          
           set_button_enable(  FANBTN,   1);
           set_button_enable(  HEATBTN,  1);
           set_button_enable(  PIDBTN,   1);
@@ -157,8 +156,6 @@ void enter_mode(int newmode) {
           setAutoTimerSeconds(0);
           initAutoTimer();
           enableAutoTimer();
-          
-          
           
           MODE=6;
           break;

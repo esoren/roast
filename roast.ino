@@ -5,7 +5,7 @@
 #include <Adafruit_I2CRegister.h>
 #include "Adafruit_MCP9600.h"
 #include "src/defines.h"
-#include "src/globals.h"
+#include "src/config.h"
 #include "src/hardware.h"
 #include "src/nextion.h"
 #include "src/state.h"

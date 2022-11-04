@@ -5,11 +5,23 @@
 #include <Adafruit_I2CRegister.h>
 #include "Adafruit_MCP9600.h"
 #include "auto.h"
-#include "globals.h"
+#include "config.h"
 #include "hardware.h"
 #include "nextion.h"
 #include "state.h"
 #include "defines.h"
+
+
+/********** globals ************/
+
+//These curve values are used for auto operation. They are retrieved from the Nextion UI at the start of curve calculation. 
+int curveStartTemp = 0; //degrees C
+int curveEndTemp = 0;   //degrees C
+int curveEndTime = 0;   //seconds
+int curveBend = 0;      //degrees C
+int curveRampTime = 0;  //seconds (time to reach the peak of the bend )
+
+
 
 //Receive request from nextion display to calculate the display curve and update display values 
 //Triggered by page1 calcButton

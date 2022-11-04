@@ -8,9 +8,10 @@
 #include "nextion.h"
 #include "hardware.h"
 #include "state.h"
-#include "globals.h"
+#include "config.h"
 #include "defines.h"
 
+int heatMode = HEATMODE_PWR; //0 = PID disabled (PWR mode), 1 = PID enabled (PID mode)
 
 /* LIST OF EACH NEXTION TRIGGER CALLBACK */
 //trigger0  - request from nextion for mcu to update temp and fan values
@@ -36,8 +37,6 @@ void trigger0() {
   myNex.writeNum("ambientTemp", ambientTemp);
   myNex.writeNum("onboardTemp", onboardTemp);
   
-
-
   if(heatMode==HEATMODE_PID) {
     myNex.writeNum("pwrDisplay", (int)float(pidPwrOutput)*2.5);
     myNex.writeStr("pwrText.txt", String(pidPwrOutput, 0));  
@@ -48,9 +47,6 @@ void trigger0() {
     myNex.writeStr("pidText.txt", "n/a");
   }
   
-
-  
-  
   myNex.writeNum("fanspeed", fanspeed); 
   return;
 }
@@ -59,7 +55,6 @@ void trigger0() {
 //Triggered by fanSlider Touch Move event 
 //printh 23 02 54 01
 void trigger1() {
-
   
   double newFanspeed = myNex.readNumber("fanSlider.val");
   if(newFanspeed != 777777) { //777777 = error flag from easyNex library
@@ -192,6 +187,9 @@ void set_button_state(int button, int state) {
 }
 
 
+//if heatMode is PWR mode, the heater is under manual control by the user. The duty cycle is set to a fixed percentage from 0-100%. 
+//if heatMode is PID mode, the heater duty cycle is managed by a PID loop against a setpoint. 
+
 void set_setpoint_mode(int new_setpoint_mode) {
   if(new_setpoint_mode == SETPOINT_PWR) {
     myNex.writeNum("heatSlider.minval", 0);
@@ -222,6 +220,11 @@ void set_setpoint_mode(int new_setpoint_mode) {
   
   return;
 }
+
+
+//These functions are part of the easyNextion library. Each is called when the Nextion display sends 
+//a specific sequence via serial. Those serial commands ("printh 23 02 54 XX") are assotiated with
+//events on the nextion display. Most refer to button release events or timers. 
 
 //fanBtn Touch Turned Off Event
 //printh 23 02 54 02
