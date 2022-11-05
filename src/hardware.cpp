@@ -8,7 +8,7 @@
 #include "config.h"
 #include "hardware.h"
 #include "nextion.h"
-#include "state.h"
+//#include "state.h"
 
 
 /* ********* GLOBALS ************/
